@@ -38,5 +38,5 @@ jobs:
           DOCKER_REPO: "mental-health-model"
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n "$DOCKER_USERNAME/$DOCKER_REPO:latest"
+          mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n "$DOCKER_USERNAME/$DOCKER_REPO:latest" --env-manager conda
           docker push "$DOCKER_USERNAME/$DOCKER_REPO:latest"

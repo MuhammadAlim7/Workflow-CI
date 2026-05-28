@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
 if __name__ == "__main__":
-    mlflow.autolog()
+    mlflow.autolog(log_models=False)
     with mlflow.start_run() as run:
         # Load preprocessed data
         df = pd.read_csv("Teen_Mental_Health_preprocessing.csv")
@@ -13,6 +13,8 @@ if __name__ == "__main__":
         # Train model
         rf = RandomForestClassifier(n_estimators=100, random_state=42)
         rf.fit(X, y)
+        
+        mlflow.sklearn.log_model(rf, "model", conda_env="conda.yaml")
         
         # Write run ID to a file so GitHub Actions can read it for Docker build
         with open("run_id.txt", "w") as f:

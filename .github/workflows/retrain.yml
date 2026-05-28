@@ -1,0 +1,42 @@
+name: Retrain and Push to Docker Hub
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          pip install mlflow==2.19.0 pandas scikit-learn
+
+      - name: Run MLProject
+        run: |
+          mlflow run MLProject/ --env-manager local
+
+      - name: Get Run ID
+        run: |
+          RUN_ID=$(cat MLProject/run_id.txt)
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV  # ← simpan ke environment variable
+
+      - name: Build and Push Docker Image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: "mental-health-model"
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n "$DOCKER_USERNAME/$DOCKER_REPO:latest"
+          docker push "$DOCKER_USERNAME/$DOCKER_REPO:latest"

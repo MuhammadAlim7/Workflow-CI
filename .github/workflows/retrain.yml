@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install mlflow==2.19.0 pandas scikit-learn
+          pip install mlflow pandas scikit-learn
 
       - name: Run MLProject
         run: |
@@ -38,5 +38,5 @@ jobs:
           DOCKER_REPO: "mental-health-model"
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n "$DOCKER_USERNAME/$DOCKER_REPO:latest" --env-manager conda
+          mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n "$DOCKER_USERNAME/$DOCKER_REPO:latest"
           docker push "$DOCKER_USERNAME/$DOCKER_REPO:latest"
